@@ -15,7 +15,9 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.spacenews.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +39,7 @@ fun WordSearchBar(
         modifier = modifier
             .padding(start = 12.dp, top = 2.dp, end = 12.dp, bottom = 12.dp)
             .fillMaxWidth(),
-        placeholder = { Text("Search") },
+        placeholder = { Text(stringResource(R.string.search_placeholder)) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Rounded.Search,

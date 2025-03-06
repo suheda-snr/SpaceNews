@@ -7,8 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.spacenews.R
 import com.example.spacenews.ui.components.WordSearchBar
 import com.example.spacenews.viewmodel.SpaceNewsViewModel
 import com.example.spacenews.ui.components.LoadingState
@@ -20,7 +22,7 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: SpaceNewsViewModel = viewModel()
 ) {
-    // Access state directly
+
     val searchQuery = viewModel.searchQuery.value
     val newsResults = viewModel.newsArticles
     val isLoading = viewModel.isLoading.value
@@ -46,7 +48,7 @@ fun MainScreen(
                 }
                 error != null -> {
                     Texts(
-                        text = error ?: "Unknown error occurred",
+                        text = error ?: stringResource(R.string.unknown_error),
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(16.dp)
                     )
@@ -65,13 +67,13 @@ fun MainScreen(
                 }
                 searchQuery.isNotEmpty() && newsResults.isEmpty() -> {
                     Texts(
-                        text = "No results found",
+                        text = stringResource(R.string.no_results),
                         modifier = Modifier.padding(16.dp)
                     )
                 }
                 else -> {
                     Texts(
-                        text = "Enter a search query",
+                        text = stringResource(R.string.search),
                         modifier = Modifier.padding(16.dp)
                     )
                 }

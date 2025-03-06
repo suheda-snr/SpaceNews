@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SpaceNews</string>
+    <string name="unknown_error">Unknown error occurred</string>
+    <string name="no_results">No results found</string>
+    <string name="search">Enter a search query</string>
+    <string name="search_placeholder">Search</string>
 </resources>

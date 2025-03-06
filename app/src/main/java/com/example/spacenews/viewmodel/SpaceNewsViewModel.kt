@@ -24,10 +24,6 @@ class SpaceNewsViewModel : ViewModel() {
     var error = mutableStateOf<String?>(null)
         private set
 
-    init {
-        // Optionally fetch initial data here if you want
-    }
-
     fun updateSearchQuery(query: String) {
         searchQuery.value = query
         if (query.isNotEmpty()) {
