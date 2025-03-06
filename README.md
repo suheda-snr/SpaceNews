@@ -12,7 +12,6 @@ Space News is a simple Android app built with Jetpack Compose that lets users se
 - **UI**: Jetpack Compose
 - **Architecture**: MVVM (Model-View-ViewModel)
 - **API**: [Spaceflight News API](https://spaceflightnewsapi.net/)
-- **Dependencies**: ViewModel, Coroutines, Retrofit (assumed for API calls).
 
 ---
 
