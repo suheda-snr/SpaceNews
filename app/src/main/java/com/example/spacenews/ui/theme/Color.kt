@@ -1,4 +1,4 @@
-package com.example.wordscope.ui.theme
+package com.example.spacenews.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

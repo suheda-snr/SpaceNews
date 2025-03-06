@@ -1,4 +1,4 @@
-package com.example.wordscope
+package com.example.spacenews
 
 import org.junit.Test
 
