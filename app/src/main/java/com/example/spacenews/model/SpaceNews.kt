@@ -1,5 +1,6 @@
 package com.example.spacenews.model
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -9,7 +10,7 @@ data class SpaceNewsArticle(
     val title: String,
     val summary: String?,
     val url: String,
-    val imageUrl: String?
+    @SerializedName("image_url") val imageUrl: String?
 )
 
 data class SpaceNewsResponse(
@@ -19,9 +20,12 @@ data class SpaceNewsResponse(
 const val SPACE_NEWS_BASE_URL = "https://api.spaceflightnewsapi.net/v4/"
 
 interface SpaceNewsApi {
-
     @GET("articles/")
     suspend fun getArticles(@Query("title_contains") query: String): SpaceNewsResponse
+
+    // endpoint for recent articles
+    @GET("articles/?_limit=10&_sort=published_at:desc")
+    suspend fun getRecentArticles(): SpaceNewsResponse
 
     companion object {
         var service: SpaceNewsApi? = null
