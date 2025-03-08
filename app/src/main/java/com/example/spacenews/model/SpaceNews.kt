@@ -7,6 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 data class SpaceNewsArticle(
+    val id: String,
     val title: String,
     val summary: String?,
     val url: String,

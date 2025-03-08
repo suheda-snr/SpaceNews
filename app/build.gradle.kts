@@ -55,6 +55,7 @@ dependencies {
     implementation (libs.androidx.navigation.compose)
     implementation(libs.coil.compose)
     implementation(libs.coil3.coil.network.okhttp)
+    implementation (libs.androidx.navigation.compose.v275)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

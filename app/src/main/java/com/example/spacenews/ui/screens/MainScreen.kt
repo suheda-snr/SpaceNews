@@ -1,13 +1,11 @@
 package com.example.spacenews.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.spacenews.R
 import com.example.spacenews.ui.components.EmptyState
 import com.example.spacenews.ui.components.ErrorState
@@ -31,7 +30,8 @@ import com.example.spacenews.viewmodel.SpaceNewsViewModel
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    viewModel: SpaceNewsViewModel = viewModel()
+    viewModel: SpaceNewsViewModel = viewModel(),
+    navController: NavController // NavController is passed as a parameter
 ) {
     val searchQuery = viewModel.searchQuery.value
     val newsResults = viewModel.newsArticles
@@ -58,7 +58,15 @@ fun MainScreen(
                 )
                 searchQuery.isNotEmpty() && newsResults.isNotEmpty() -> LazyColumn {
                     items(newsResults) { article ->
-                        NewsItem(article = article, modifier = Modifier.padding(16.dp))
+                        NewsItem(
+                            article = article,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .clickable {
+                                    // Navigate to DetailScreen with article ID as argument
+                                    navController.navigate("detail_screen/${article.id}")
+                                }
+                        )
                     }
                 }
                 searchQuery.isNotEmpty() && newsResults.isEmpty() -> {
@@ -88,7 +96,12 @@ fun MainScreen(
                 items(recentArticles) { article ->
                     NewsCard(
                         title = article.title,
-                        imageUrl = article.imageUrl
+                        imageUrl = article.imageUrl,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .clickable {
+                                navController.navigate("detail_screen/${article.id}")
+                            }
                     )
                 }
             }
