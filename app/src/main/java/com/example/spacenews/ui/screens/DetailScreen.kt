@@ -23,6 +23,7 @@ import com.example.spacenews.R
 import com.example.spacenews.ui.components.EmptyState
 import com.example.spacenews.ui.components.ErrorState
 import com.example.spacenews.ui.components.LoadingState
+import com.example.spacenews.ui.components.TopBar
 import com.example.spacenews.viewmodel.SpaceNewsViewModel
 import com.example.spacenews.viewmodel.NewsUiState
 import java.time.ZonedDateTime
@@ -56,113 +57,109 @@ fun DetailScreen(
     val scrollState = rememberScrollState()
     val uriHandler = LocalUriHandler.current
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        when (articleState) {
-            is NewsUiState.Loading -> {
-                LoadingState(modifier = Modifier.align(Alignment.Center))
-            }
-            is NewsUiState.Success -> {
-                article?.let {
-                    Column(
-                        modifier = Modifier
-                            .verticalScroll(scrollState)
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = it.title,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
+    Column(modifier = modifier.padding(16.dp)) {
+        TopBar(
+            title = "Details",
+            onBackClick = { navController.popBackStack() }
+        )
 
-                        it.imageUrl?.let { imageUrl ->
-                            Spacer(modifier = Modifier.height(12.dp))
-                            AsyncImage(
-                                model = imageUrl,
-                                contentDescription = "Article image for ${it.title}",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            when (articleState) {
+                is NewsUiState.Loading -> {
+                    LoadingState(modifier = Modifier.align(Alignment.Center))
+                }
 
+                is NewsUiState.Success -> {
+                    article?.let {
                         Column(
-                            modifier = Modifier.padding(top = 12.dp)
+                            modifier = Modifier
+                                .verticalScroll(scrollState)
+                                .fillMaxWidth()
                         ) {
-                            it.newsSite?.let {
-                                Text(
-                                    text = "Source: $it",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            formatPublishedDate(it.publishedAt)?.let { formattedDate ->
-                                Text(
-                                    text = "Published: $formattedDate",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
+                            Text(
+                                text = it.title,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
 
-                        it.summary?.let { summary ->
+                            it.imageUrl?.let { imageUrl ->
+                                Spacer(modifier = Modifier.height(12.dp))
+                                AsyncImage(
+                                    model = imageUrl,
+                                    contentDescription = "Article image for ${it.title}",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(180.dp)
+                                        .clip(RoundedCornerShape(8.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+
+                            Column(
+                                modifier = Modifier.padding(top = 12.dp)
+                            ) {
+                                it.newsSite?.let {
+                                    Text(
+                                        text = "Source: $it",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                formatPublishedDate(it.publishedAt)?.let { formattedDate ->
+                                    Text(
+                                        text = "Published: $formattedDate",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            it.summary?.let { summary ->
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    text = "Summary",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = summary,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    lineHeight = 22.sp
+                                )
+                            }
+
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "Summary",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = summary,
-                                style = MaterialTheme.typography.bodyLarge,
-                                lineHeight = 22.sp
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "Read full article",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .clickable { uriHandler.openUri(it.url) }
-                                .padding(vertical = 4.dp)
-                        )
-
-                        Button(
-                            onClick = { navController.navigate("home") },
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(top = 20.dp)
-                                .width(180.dp),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = "Back to Home",
-                                fontSize = 14.sp
+                                text = "Read full article",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .clickable { uriHandler.openUri(it.url) }
+                                    .padding(vertical = 4.dp)
                             )
                         }
                     }
                 }
-            }
-            is NewsUiState.Error -> {
-                ErrorState(
-                    errorMessage = stringResource(R.string.error_article_details),
-                    onRetry = { articleId?.let { viewModel.fetchArticleDetail(it) } },
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-            is NewsUiState.Empty -> {
-                EmptyState(message = stringResource(R.string.empty_details))
+
+                is NewsUiState.Error -> {
+                    ErrorState(
+                        errorMessage = stringResource(R.string.error_article_details),
+                        onRetry = { articleId?.let { viewModel.fetchArticleDetail(it) } },
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
+                is NewsUiState.Empty -> {
+                    EmptyState(message = stringResource(R.string.empty_details))
+                }
             }
         }
     }

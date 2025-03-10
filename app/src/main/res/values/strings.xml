@@ -9,4 +9,6 @@
     <string name="no_recent_articles">No recent articles found.</string>
     <string name="empty_details">The requested article could not be found</string>
     <string name="error_article_details">The article details could not be loaded.</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_details">Details</string>
 </resources>
