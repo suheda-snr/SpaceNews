@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 data class SpaceNewsArticle(
@@ -11,7 +12,9 @@ data class SpaceNewsArticle(
     val title: String,
     val summary: String?,
     val url: String,
-    @SerializedName("image_url") val imageUrl: String?
+    @SerializedName("image_url") val imageUrl: String?,
+    @SerializedName("news_site") val newsSite: String?,
+    @SerializedName("published_at") val publishedAt: String?
 )
 
 data class SpaceNewsResponse(
@@ -24,9 +27,11 @@ interface SpaceNewsApi {
     @GET("articles/")
     suspend fun getArticles(@Query("title_contains") query: String): SpaceNewsResponse
 
-    // endpoint for recent articles
     @GET("articles/?_limit=10&_sort=published_at:desc")
     suspend fun getRecentArticles(): SpaceNewsResponse
+
+    @GET("articles/{id}")
+    suspend fun getArticleById(@Path("id") articleId: String): SpaceNewsArticle
 
     companion object {
         var service: SpaceNewsApi? = null

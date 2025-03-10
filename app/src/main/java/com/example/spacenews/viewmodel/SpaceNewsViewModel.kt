@@ -52,6 +52,7 @@ class SpaceNewsViewModel : ViewModel() {
                 val response = api.getArticles(query)
                 newsArticles.clear()
                 newsArticles.addAll(response.results)
+                Log.d("SpaceNews", "Fetched articles: ${response.results.map { it.id }}")
             } catch (e: Exception) {
                 error.value = e.message.toString()
                 Log.d("ERROR", error.value ?: "Unknown error")
@@ -85,6 +86,28 @@ class SpaceNewsViewModel : ViewModel() {
         fetchRecentNews()
         if (searchQuery.value.isNotEmpty()) {
             fetchNews(searchQuery.value)
+        }
+    }
+
+    fun getArticleById(articleId: String): SpaceNewsArticle? {
+        return try {
+            Log.d("SpaceNews", "Fetching article by ID: $articleId")
+
+            // Log available IDs for debugging
+            Log.d("SpaceNews", "Available newsArticles IDs: ${newsArticles.map { it.id }}")
+            Log.d("SpaceNews", "Available recentArticles IDs: ${recentArticles.map { it.id }}")
+
+            val article = newsArticles.find { it.id.trim() == articleId.trim() }
+                ?: recentArticles.find { it.id.trim() == articleId.trim() }
+
+            if (article == null) {
+                Log.e("SpaceNews", "Article not found: $articleId")
+            }
+
+            article
+        } catch (e: Exception) {
+            Log.e("SpaceNews", "Error fetching article by ID: $articleId", e)
+            null
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,6 +17,7 @@ import androidx.navigation.navArgument
 import com.example.spacenews.ui.theme.SpaceNewsTheme
 import com.example.spacenews.ui.screens.MainScreen
 import com.example.spacenews.ui.screens.DetailScreen
+import com.example.spacenews.viewmodel.SpaceNewsViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +35,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavigationApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    val viewModel: SpaceNewsViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -40,7 +43,7 @@ fun NavigationApp(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         composable(route = "home") {
-            MainScreen(navController = navController, modifier = modifier)
+            MainScreen(navController = navController, modifier = modifier, viewModel = viewModel)
         }
 
         composable(
@@ -52,7 +55,7 @@ fun NavigationApp(modifier: Modifier = Modifier) {
             )
         ) { backStackEntry ->
             val articleId = backStackEntry.arguments?.getString("articleId")
-            DetailScreen(navController = navController, modifier = modifier, articleId = articleId)
+            DetailScreen(navController = navController, modifier = modifier, articleId = articleId, viewModel = viewModel)
         }
     }
 }

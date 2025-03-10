@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +30,7 @@ import com.example.spacenews.viewmodel.SpaceNewsViewModel
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: SpaceNewsViewModel = viewModel(),
-    navController: NavController // NavController is passed as a parameter
+    navController: NavController
 ) {
     val searchQuery = viewModel.searchQuery.value
     val newsResults = viewModel.newsArticles
@@ -63,7 +62,6 @@ fun MainScreen(
                             modifier = Modifier
                                 .padding(16.dp)
                                 .clickable {
-                                    // Navigate to DetailScreen with article ID as argument
                                     navController.navigate("detail_screen/${article.id}")
                                 }
                         )
