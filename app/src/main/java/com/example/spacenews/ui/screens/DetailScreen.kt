@@ -24,22 +24,9 @@ import com.example.spacenews.ui.components.EmptyState
 import com.example.spacenews.ui.components.ErrorState
 import com.example.spacenews.ui.components.LoadingState
 import com.example.spacenews.ui.components.TopBar
+import com.example.spacenews.utils.DateUtils
 import com.example.spacenews.viewmodel.SpaceNewsViewModel
 import com.example.spacenews.viewmodel.NewsUiState
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-
-private fun formatPublishedDate(dateString: String?): String? {
-    if (dateString == null) return null
-    return try {
-        val inputFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
-        val outputFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy")
-        val zonedDateTime = ZonedDateTime.parse(dateString, inputFormatter)
-        outputFormatter.format(zonedDateTime)
-    } catch (e: Exception) {
-        dateString // Fallback to original string if parsing fails
-    }
-}
 
 @Composable
 fun DetailScreen(
@@ -111,7 +98,7 @@ fun DetailScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                formatPublishedDate(it.publishedAt)?.let { formattedDate ->
+                                DateUtils.formatPublishedDate(it.publishedAt)?.let { formattedDate ->
                                     Text(
                                         text = "Published: $formattedDate",
                                         style = MaterialTheme.typography.bodySmall,
