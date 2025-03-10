@@ -23,6 +23,7 @@ import com.example.spacenews.R
 import com.example.spacenews.ui.components.EmptyState
 import com.example.spacenews.ui.components.ErrorState
 import com.example.spacenews.ui.components.LoadingState
+import com.example.spacenews.ui.components.Texts
 import com.example.spacenews.ui.components.TopBar
 import com.example.spacenews.utils.DateUtils
 import com.example.spacenews.viewmodel.SpaceNewsViewModel
@@ -40,113 +41,99 @@ fun DetailScreen(
     }
 
     val articleState = viewModel.articleDetailUiState
-    val article = (articleState as? NewsUiState.Success)?.articles?.firstOrNull()
     val scrollState = rememberScrollState()
     val uriHandler = LocalUriHandler.current
 
-    Column(modifier = modifier.padding(16.dp)) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(scrollState)
+    ) {
         TopBar(
             title = "Details",
             onBackClick = { navController.popBackStack() }
         )
 
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            when (articleState) {
-                is NewsUiState.Loading -> {
-                    LoadingState(modifier = Modifier.align(Alignment.Center))
-                }
+        Spacer(modifier = Modifier.height(8.dp))
 
-                is NewsUiState.Success -> {
-                    article?.let {
-                        Column(
+        when (articleState) {
+            is NewsUiState.Loading -> {
+                LoadingState(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
+
+            is NewsUiState.Success -> {
+                val article = articleState.articles.firstOrNull()
+                article?.let {
+
+                    Texts(
+                        text = it.title,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                    )
+
+                    it.imageUrl?.let { imageUrl ->
+                        Spacer(modifier = Modifier.height(12.dp))
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = "Article image for ${it.title}",
                             modifier = Modifier
-                                .verticalScroll(scrollState)
                                 .fillMaxWidth()
-                        ) {
-                            Text(
-                                text = it.title,
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 4.dp)
-                            )
-
-                            it.imageUrl?.let { imageUrl ->
-                                Spacer(modifier = Modifier.height(12.dp))
-                                AsyncImage(
-                                    model = imageUrl,
-                                    contentDescription = "Article image for ${it.title}",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(180.dp)
-                                        .clip(RoundedCornerShape(8.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-
-                            Column(
-                                modifier = Modifier.padding(top = 12.dp)
-                            ) {
-                                it.newsSite?.let {
-                                    Text(
-                                        text = "Source: $it",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                DateUtils.formatPublishedDate(it.publishedAt)?.let { formattedDate ->
-                                    Text(
-                                        text = "Published: $formattedDate",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            it.summary?.let { summary ->
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = "Summary",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = summary,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    lineHeight = 22.sp
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = "Read full article",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clickable { uriHandler.openUri(it.url) }
-                                    .padding(vertical = 4.dp)
-                            )
-                        }
+                                .height(180.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop
+                        )
                     }
-                }
 
-                is NewsUiState.Error -> {
-                    ErrorState(
-                        errorMessage = stringResource(R.string.error_article_details),
-                        onRetry = { articleId?.let { viewModel.fetchArticleDetail(it) } },
-                        modifier = Modifier.align(Alignment.Center)
+                    it.newsSite?.let { site ->
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Texts(
+                            text = "Source: $site",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
+                        )
+                    }
+                    DateUtils.formatPublishedDate(it.publishedAt)?.let { date ->
+                        Texts(
+                            text = "Published: $date",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
+                        )
+                    }
+
+                    it.summary?.let { summary ->
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Texts(
+                            text = summary,
+                            style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 22.sp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Texts(
+                        text = "Read full article",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .clickable { uriHandler.openUri(it.url) }
+                            .padding(vertical = 4.dp)
                     )
                 }
+            }
 
-                is NewsUiState.Empty -> {
-                    EmptyState(message = stringResource(R.string.empty_details))
-                }
+            is NewsUiState.Error -> {
+                ErrorState(
+                    errorMessage = stringResource(R.string.error_article_details),
+                    onRetry = { articleId?.let { viewModel.fetchArticleDetail(it) } },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+
+            is NewsUiState.Empty -> {
+                EmptyState(
+                    message = stringResource(R.string.empty_details),
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
         }
     }
