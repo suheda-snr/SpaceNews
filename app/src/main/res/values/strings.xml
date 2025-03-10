@@ -7,4 +7,6 @@
     <string name="latest_news">Latest News</string>
     <string name="retry">Please, retry!</string>
     <string name="no_recent_articles">No recent articles found.</string>
+    <string name="empty_details">The requested article could not be found</string>
+    <string name="error_article_details">The article details could not be loaded.</string>
 </resources>

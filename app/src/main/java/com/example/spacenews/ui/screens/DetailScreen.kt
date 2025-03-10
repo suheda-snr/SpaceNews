@@ -7,17 +7,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.example.spacenews.R
+import com.example.spacenews.ui.components.EmptyState
+import com.example.spacenews.ui.components.ErrorState
+import com.example.spacenews.ui.components.LoadingState
 import com.example.spacenews.viewmodel.SpaceNewsViewModel
+import com.example.spacenews.viewmodel.NewsUiState
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -40,7 +47,12 @@ fun DetailScreen(
     navController: NavController,
     viewModel: SpaceNewsViewModel
 ) {
-    val article = articleId?.let { viewModel.getArticleById(it) }
+    LaunchedEffect(articleId) {
+        articleId?.let { viewModel.fetchArticleDetail(it) }
+    }
+
+    val articleState = viewModel.articleDetailUiState
+    val article = (articleState as? NewsUiState.Success)?.articles?.firstOrNull()
     val scrollState = rememberScrollState()
     val uriHandler = LocalUriHandler.current
 
@@ -49,113 +61,108 @@ fun DetailScreen(
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        if (article != null) {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(scrollState)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = article.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-                // Image
-                article.imageUrl?.let { imageUrl ->
-                    Spacer(modifier = Modifier.height(12.dp))
-                    AsyncImage(
-                        model = imageUrl,
-                        contentDescription = "Article image for ${article.title}",
+        when (articleState) {
+            is NewsUiState.Loading -> {
+                LoadingState(modifier = Modifier.align(Alignment.Center))
+            }
+            is NewsUiState.Success -> {
+                article?.let {
+                    Column(
                         modifier = Modifier
+                            .verticalScroll(scrollState)
                             .fillMaxWidth()
-                            .height(180.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                Column(
-                    modifier = Modifier.padding(top = 12.dp)
-                ) {
-                    article.newsSite?.let {
+                    ) {
                         Text(
-                            text = "Source: $it",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = it.title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 4.dp)
                         )
-                    }
-                    formatPublishedDate(article.publishedAt)?.let { formattedDate ->
+
+                        it.imageUrl?.let { imageUrl ->
+                            Spacer(modifier = Modifier.height(12.dp))
+                            AsyncImage(
+                                model = imageUrl,
+                                contentDescription = "Article image for ${it.title}",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier.padding(top = 12.dp)
+                        ) {
+                            it.newsSite?.let {
+                                Text(
+                                    text = "Source: $it",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            formatPublishedDate(it.publishedAt)?.let { formattedDate ->
+                                Text(
+                                    text = "Published: $formattedDate",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        it.summary?.let { summary ->
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "Summary",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = summary,
+                                style = MaterialTheme.typography.bodyLarge,
+                                lineHeight = 22.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "Published: $formattedDate",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "Read full article",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .clickable { uriHandler.openUri(it.url) }
+                                .padding(vertical = 4.dp)
                         )
+
+                        Button(
+                            onClick = { navController.navigate("home") },
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(top = 20.dp)
+                                .width(180.dp),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = "Back to Home",
+                                fontSize = 14.sp
+                            )
+                        }
                     }
-                }
-
-                article.summary?.let {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Summary",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyLarge,
-                        lineHeight = 22.sp
-                    )
-                }
-
-                // URL
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "Read full article",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .clickable { uriHandler.openUri(article.url) }
-                        .padding(vertical = 4.dp)
-                )
-
-                Button(
-                    onClick = { navController.navigate("home") },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 20.dp)
-                        .width(180.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "Back to Home",
-                        fontSize = 14.sp
-                    )
                 }
             }
-        } else {
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Article Not Found",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.error
+            is NewsUiState.Error -> {
+                ErrorState(
+                    errorMessage = stringResource(R.string.error_article_details),
+                    onRetry = { articleId?.let { viewModel.fetchArticleDetail(it) } },
+                    modifier = Modifier.align(Alignment.Center)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "The requested article could not be loaded",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            }
+            is NewsUiState.Empty -> {
+                EmptyState(message = stringResource(R.string.empty_details))
             }
         }
     }

@@ -27,6 +27,9 @@ class SpaceNewsViewModel : ViewModel() {
     var searchQuery = mutableStateOf("")
         private set
 
+    var articleDetailUiState: NewsUiState by mutableStateOf(NewsUiState.Loading) // New state for article details
+        private set
+
     private val api = SpaceNewsApi.getInstance()
 
     init {
@@ -87,25 +90,21 @@ class SpaceNewsViewModel : ViewModel() {
         }
     }
 
-    fun getArticleById(articleId: String): SpaceNewsArticle? {
-        return try {
-            Log.d("SpaceNews", "Fetching article by ID: $articleId")
-            val recentArticles = (recentNewsUiState as? NewsUiState.Success)?.articles ?: emptyList()
-            val searchArticles = (searchNewsUiState as? NewsUiState.Success)?.articles ?: emptyList()
-
-            Log.d("SpaceNews", "Available recentArticles IDs: ${recentArticles.map { it.id }}")
-            Log.d("SpaceNews", "Available searchArticles IDs: ${searchArticles.map { it.id }}")
-
-            val article = searchArticles.find { it.id.trim() == articleId.trim() }
-                ?: recentArticles.find { it.id.trim() == articleId.trim() }
-
-            if (article == null) {
-                Log.e("SpaceNews", "Article not found: $articleId")
+    fun fetchArticleDetail(articleId: String) {
+        viewModelScope.launch {
+            articleDetailUiState = NewsUiState.Loading
+            try {
+                val response = api.getArticleById(articleId)
+                articleDetailUiState = if (response != null) {
+                    NewsUiState.Success(listOf(response))
+                } else {
+                    NewsUiState.Empty
+                }
+                Log.d("SpaceNews", "Fetched article detail: ${response?.title}")
+            } catch (e: Exception) {
+                articleDetailUiState = NewsUiState.Error
+                Log.d("ERROR", e.message ?: "Unknown error")
             }
-            article
-        } catch (e: Exception) {
-            Log.e("SpaceNews", "Error fetching article by ID: $articleId", e)
-            null
         }
     }
 }
