@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,12 +38,16 @@ fun MainScreen(
     val searchUiState = viewModel.searchNewsUiState
     val recentUiState = viewModel.recentNewsUiState
     var active by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     Column(modifier = modifier.fillMaxSize()) {
         WordSearchBar(
             searchQuery = searchQuery,
             onQueryChange = { viewModel.updateSearchQuery(it) },
-            onSearch = { active = false },
+            onSearch = {
+                active = true
+                focusManager.clearFocus()
+            },
             active = active,
             onActiveChange = { active = it },
             modifier = Modifier.fillMaxWidth()
