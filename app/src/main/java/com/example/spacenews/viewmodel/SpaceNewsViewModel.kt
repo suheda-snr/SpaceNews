@@ -1,19 +1,27 @@
 package com.example.spacenews.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spacenews.model.SpaceNewsApi
 import com.example.spacenews.model.SpaceNewsArticle
 import kotlinx.coroutines.launch
 
+sealed interface NewsUiState {
+    data class Success(val articles: List<SpaceNewsArticle>) : NewsUiState
+    object Error : NewsUiState
+    object Loading : NewsUiState
+    object Empty : NewsUiState // For empty search results or no recent articles
+}
+
 class SpaceNewsViewModel : ViewModel() {
-    var newsArticles = mutableStateListOf<SpaceNewsArticle>()
+    var recentNewsUiState: NewsUiState by mutableStateOf(NewsUiState.Loading)
         private set
 
-    var recentArticles = mutableStateListOf<SpaceNewsArticle>() // For recent articles
+    var searchNewsUiState: NewsUiState by mutableStateOf(NewsUiState.Empty)
         private set
 
     var searchQuery = mutableStateOf("")
@@ -21,16 +29,6 @@ class SpaceNewsViewModel : ViewModel() {
 
     private val api = SpaceNewsApi.getInstance()
 
-    var isLoading = mutableStateOf(false) // For search
-        private set
-
-    var isLoadingRecent = mutableStateOf(false) // For recent articles
-        private set
-
-    var error = mutableStateOf<String?>(null)
-        private set
-
-    // Load recent articles on init
     init {
         fetchRecentNews()
     }
@@ -40,44 +38,44 @@ class SpaceNewsViewModel : ViewModel() {
         if (query.isNotEmpty()) {
             fetchNews(query)
         } else {
-            newsArticles.clear()
+            searchNewsUiState = NewsUiState.Empty
         }
     }
 
     private fun fetchNews(query: String) {
         viewModelScope.launch {
-            isLoading.value = true
-            error.value = null
+            searchNewsUiState = NewsUiState.Loading
             try {
                 val response = api.getArticles(query)
-                newsArticles.clear()
-                newsArticles.addAll(response.results)
+                searchNewsUiState = if (response.results.isEmpty()) {
+                    NewsUiState.Empty
+                } else {
+                    NewsUiState.Success(response.results)
+                }
                 Log.d("SpaceNews", "Fetched articles: ${response.results.map { it.id }}")
             } catch (e: Exception) {
-                error.value = e.message.toString()
-                Log.d("ERROR", error.value ?: "Unknown error")
-            } finally {
-                isLoading.value = false
+                searchNewsUiState = NewsUiState.Error
+                Log.d("ERROR", e.message ?: "Unknown error")
             }
         }
     }
 
     private fun fetchRecentNews() {
         viewModelScope.launch {
-            isLoadingRecent.value = true
-            error.value = null
+            recentNewsUiState = NewsUiState.Loading
             try {
                 val response = api.getRecentArticles()
-                recentArticles.clear()
+                recentNewsUiState = if (response.results.isEmpty()) {
+                    NewsUiState.Empty
+                } else {
+                    NewsUiState.Success(response.results)
+                }
                 response.results.forEach { article ->
                     Log.d("SpaceNews", "Article: ${article.title}, Image URL: ${article.imageUrl}")
                 }
-                recentArticles.addAll(response.results)
             } catch (e: Exception) {
-                error.value = e.message.toString()
-                Log.d("ERROR", error.value ?: "Unknown error")
-            } finally {
-                isLoadingRecent.value = false
+                recentNewsUiState = NewsUiState.Error
+                Log.d("ERROR", e.message ?: "Unknown error")
             }
         }
     }
@@ -92,18 +90,18 @@ class SpaceNewsViewModel : ViewModel() {
     fun getArticleById(articleId: String): SpaceNewsArticle? {
         return try {
             Log.d("SpaceNews", "Fetching article by ID: $articleId")
+            val recentArticles = (recentNewsUiState as? NewsUiState.Success)?.articles ?: emptyList()
+            val searchArticles = (searchNewsUiState as? NewsUiState.Success)?.articles ?: emptyList()
 
-            // Log available IDs for debugging
-            Log.d("SpaceNews", "Available newsArticles IDs: ${newsArticles.map { it.id }}")
             Log.d("SpaceNews", "Available recentArticles IDs: ${recentArticles.map { it.id }}")
+            Log.d("SpaceNews", "Available searchArticles IDs: ${searchArticles.map { it.id }}")
 
-            val article = newsArticles.find { it.id.trim() == articleId.trim() }
+            val article = searchArticles.find { it.id.trim() == articleId.trim() }
                 ?: recentArticles.find { it.id.trim() == articleId.trim() }
 
             if (article == null) {
                 Log.e("SpaceNews", "Article not found: $articleId")
             }
-
             article
         } catch (e: Exception) {
             Log.e("SpaceNews", "Error fetching article by ID: $articleId", e)

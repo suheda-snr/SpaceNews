@@ -24,6 +24,7 @@ import com.example.spacenews.ui.components.NewsCard
 import com.example.spacenews.ui.components.NewsItem
 import com.example.spacenews.ui.components.Texts
 import com.example.spacenews.ui.components.WordSearchBar
+import com.example.spacenews.viewmodel.NewsUiState
 import com.example.spacenews.viewmodel.SpaceNewsViewModel
 
 @Composable
@@ -33,11 +34,8 @@ fun MainScreen(
     navController: NavController
 ) {
     val searchQuery = viewModel.searchQuery.value
-    val newsResults = viewModel.newsArticles
-    val isLoading = viewModel.isLoading.value
-    val error = viewModel.error.value
-    val recentArticles = viewModel.recentArticles
-    val isLoadingRecent = viewModel.isLoadingRecent.value
+    val searchUiState = viewModel.searchNewsUiState
+    val recentUiState = viewModel.recentNewsUiState
     var active by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -49,14 +47,14 @@ fun MainScreen(
             onActiveChange = { active = it },
             modifier = Modifier.fillMaxWidth()
         ) {
-            when {
-                isLoading -> LoadingState(modifier = Modifier.align(Alignment.CenterHorizontally))
-                error != null -> ErrorState(
-                    errorMessage = error ?: stringResource(R.string.unknown_error),
+            when (searchUiState) {
+                is NewsUiState.Loading -> LoadingState(modifier = Modifier.align(Alignment.CenterHorizontally))
+                is NewsUiState.Error -> ErrorState(
+                    errorMessage = stringResource(R.string.unknown_error),
                     onRetry = { viewModel.refresh() }
                 )
-                searchQuery.isNotEmpty() && newsResults.isNotEmpty() -> LazyColumn {
-                    items(newsResults) { article ->
+                is NewsUiState.Success -> LazyColumn {
+                    items(searchUiState.articles) { article ->
                         NewsItem(
                             article = article,
                             modifier = Modifier
@@ -67,10 +65,13 @@ fun MainScreen(
                         )
                     }
                 }
-                searchQuery.isNotEmpty() && newsResults.isEmpty() -> {
-                    EmptyState(message = stringResource(R.string.no_results))
+                is NewsUiState.Empty -> {
+                    if (searchQuery.isNotEmpty()) {
+                        EmptyState(message = stringResource(R.string.no_results))
+                    } else {
+                        EmptyState(message = stringResource(R.string.search))
+                    }
                 }
-                else -> EmptyState(message = stringResource(R.string.search))
             }
         }
 
@@ -80,18 +81,17 @@ fun MainScreen(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
-        when {
-            isLoadingRecent -> LoadingState(modifier = Modifier.align(Alignment.CenterHorizontally))
-            error != null && recentArticles.isEmpty() -> ErrorState(
-                errorMessage = error ?: stringResource(R.string.unknown_error),
+        when (recentUiState) {
+            is NewsUiState.Loading -> LoadingState(modifier = Modifier.align(Alignment.CenterHorizontally))
+            is NewsUiState.Error -> ErrorState(
+                errorMessage = stringResource(R.string.unknown_error),
                 onRetry = { viewModel.refresh() }
             )
-            recentArticles.isEmpty() -> EmptyState(message = stringResource(R.string.no_recent_articles))
-            else -> LazyColumn(
+            is NewsUiState.Success -> LazyColumn(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(recentArticles) { article ->
+                items(recentUiState.articles) { article ->
                     NewsCard(
                         title = article.title,
                         imageUrl = article.imageUrl,
@@ -103,6 +103,7 @@ fun MainScreen(
                     )
                 }
             }
+            is NewsUiState.Empty -> EmptyState(message = stringResource(R.string.no_recent_articles))
         }
     }
 }
