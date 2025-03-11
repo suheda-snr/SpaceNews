@@ -11,6 +11,6 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val NebulaPurple = Color(0xFF6A4C93)
-val NebulaBlue = Color(0xFF5F76D1)
-val NebulaPink = Color(0xFFEF6AA3)
+val NebulaBlue = Color(0xFFE0F7FA)
+val NebulaPink = Color(0xFFF5A3C1)
 val LightNebulaBlue = Color(0xFF4A90E2)

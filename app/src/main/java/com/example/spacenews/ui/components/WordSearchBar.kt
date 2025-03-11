@@ -54,13 +54,13 @@ fun WordSearchBar(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,
-                        contentDescription = "Clear search"
+                        contentDescription = stringResource(R.string.clear_search)
                     )
                 }
             }
         },
         colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            containerColor = MaterialTheme.colorScheme.primary,
         ),
         tonalElevation = 0.dp,
         content = content

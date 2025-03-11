@@ -11,15 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 val DarkColorScheme = darkColorScheme(
-    primary = LightNebulaBlue,
-    secondary = NebulaPink,
-    tertiary = NebulaPurple
+    primary = NebulaPurple,
+    secondary = LightNebulaBlue,
+    tertiary = NebulaPink
 )
 
 val LightColorScheme = lightColorScheme(
     primary = NebulaBlue,
-    secondary = NebulaPink,
-    tertiary = NebulaPurple
+    secondary = NebulaPurple,
+    tertiary = NebulaPink
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -33,21 +33,11 @@ val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun WordScopeTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+fun SpaceNewsTheme(
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

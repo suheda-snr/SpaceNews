@@ -83,7 +83,7 @@ fun MainScreen(
         Texts(
             text = stringResource(R.string.latest_news),
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 20.dp)
         )
 
         when (recentUiState) {
@@ -93,8 +93,8 @@ fun MainScreen(
                 onRetry = { viewModel.refresh() }
             )
             is NewsUiState.Success -> LazyColumn(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.padding(horizontal = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(recentUiState.articles) { article ->
                     NewsCard(

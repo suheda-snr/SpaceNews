@@ -11,4 +11,14 @@
     <string name="error_article_details">The article details could not be loaded.</string>
     <string name="tab_home">Home</string>
     <string name="tab_details">Details</string>
+    <string name="read_full_article">Read full article</string>
+    <!-- Title for the About section -->
+    <string name="about_app_title">About SpaceNews</string>
+
+    <!-- Short description about what the app does -->
+    <string name="about_app_description">
+        SpaceNews provides the latest updates on space exploration, discoveries, and news about the universe. Stay up-to-date with the latest events in space science and technology.
+    </string>
+    <string name="clear_search">Clear search</string>
+
 </resources>
