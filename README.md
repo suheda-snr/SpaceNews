@@ -21,3 +21,8 @@ Space News is a simple Android app built with Jetpack Compose that lets users se
 3. Build and run on an emulator or device.
 
 ---
+
+## Demo
+To quickly see how the app works, you can access the [live demo on Appetize.io](https://appetize.io/app/b_f2nqylbfmqfqxvevdvwb7n54ea?device=pixel7&osVersion=13.0).
+
+---
