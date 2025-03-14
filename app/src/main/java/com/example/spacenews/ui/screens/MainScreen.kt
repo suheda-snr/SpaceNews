@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -53,7 +54,10 @@ fun MainScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             when (searchUiState) {
-                is NewsUiState.Loading -> LoadingState(modifier = Modifier.align(Alignment.CenterHorizontally))
+                is NewsUiState.Loading -> LoadingState(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    color = Color.White
+                )
                 is NewsUiState.Error -> ErrorState(
                     errorMessage = stringResource(R.string.unknown_error),
                     onRetry = { viewModel.refresh() }

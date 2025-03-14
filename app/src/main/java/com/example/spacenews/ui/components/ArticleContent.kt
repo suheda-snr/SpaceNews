@@ -26,7 +26,7 @@ fun ArticleContent(
     val uriHandler = LocalUriHandler.current
     Column(modifier = modifier) {
         summary?.let {
-            Spacer(modifier = Modifier.height(0.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Texts(
                 text = it,
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
